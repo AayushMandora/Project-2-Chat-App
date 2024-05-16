@@ -1,10 +1,6 @@
-import Image from "next/image";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 export default function Home() {
   return (
    <>
-      <Navbar/>
       <main>
         <div className="w-[90%] m-auto mt-[2%] h-[70vh] flex items-center justify-center">
           <div className="flex flex-col items-center gap-2">
@@ -15,7 +11,6 @@ export default function Home() {
           </div>
         </div>
       </main>
-      <Footer/>
    </>
   );
 }
