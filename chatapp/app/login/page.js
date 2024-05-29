@@ -3,14 +3,42 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 const page = () => {
   const [form, setform] = useState([]);
+  const router = useRouter();
 
   const handlechange = (e) => {
     setform({...form , [e.target.name]: e.target.value});
     console.log(form);
   };
+
+  async function onSubmit() {
+    let data = form;
+    const response = await fetch("http://127.0.0.1:5000/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    console.log(response);
+    if(response.ok){
+      toast.success('Login Successfully!', {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
+        router.push("/chats");
+    }
+  }
 
   return (
     <>
@@ -66,6 +94,9 @@ const page = () => {
               <button
                 type="submit"
                 className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                onClick={() => {
+                  onSubmit();
+                }}
               >
                 Login
               </button>
