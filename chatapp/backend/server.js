@@ -24,7 +24,7 @@ app.post("/register", (req, res) => {
     {
       userId: user._id,
     },
-    process.env.API_SECRET,
+    "Aayush",
     { expiresIn: "30d" }
   );
   if (user) {
@@ -55,7 +55,7 @@ app.post("/login", async (req, res) => {
       {
         userId: existingUser._id,
       },
-      process.env.API_SECRET,
+      "Aayush",
       { expiresIn: "30d" }
     );
   } catch (err) {

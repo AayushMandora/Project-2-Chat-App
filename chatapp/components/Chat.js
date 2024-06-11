@@ -52,6 +52,9 @@ const Chat = () => {
         <span class="material-symbols-outlined hover:bg-white/15 rounded-full p-2 hover:cursor-pointer">
           add
         </span>
+        <span class="material-symbols-outlined hover:bg-white/15 rounded-full p-2 hover:cursor-pointer">
+          Send
+        </span>
       </div>
     </div>
   );
