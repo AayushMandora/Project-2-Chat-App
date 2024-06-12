@@ -7,6 +7,8 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const Chat = require("./models/chatmodel");
+const verifyToken=require("./models/verify");
+require('dotenv').config();
 
 connectDB();
 
@@ -17,9 +19,10 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.post("/register", (req, res) => {
+app.post("/register",async (req, res) => {
   const { email, password, username } = req.body;
-  const user = User.create({ email, password, username });
+  const user = await User.create({ email, password, username });
+  console.log(user._id);
   let token = jwt.sign(
     {
       userId: user._id,
@@ -74,7 +77,7 @@ app.post("/login", async (req, res) => {
 });
 
 // search alluser
-app.get("/users",async (req, res) => {
+app.get("/users",verifyToken, async (req, res) => {
   const keyword = req.query.search
     ? {
         $or: [
@@ -84,13 +87,15 @@ app.get("/users",async (req, res) => {
       }
     : {};
 
-    const users =await (await User.find(keyword)).find({_id:{$ne:req.user._id}})
-    res.send(users);
+  const users =await (await User.find(keyword).find({_id:{$ne:req.user._id}}))
+  // const users = await User.find(keyword);
+  res.status(200).json(users);
 });
 
 // access chat
-app.post("/chat", async (req, res) => {
+app.post("/chat",verifyToken, async (req, res) => {
   const { userID } = req.body;
+  let sender=await User.findById(userID);
   if (!userID) {
     return res.status(400).json("userId not sent with request");
   }
@@ -111,7 +116,7 @@ app.post("/chat", async (req, res) => {
     res.send(chat[0]);
   } else {
     const createdchat = await Chat.create({
-      chatname: "sender",
+      chatname: sender.username,
       groupchat: false,
       users: [req.user._id, userID],
     });
@@ -124,7 +129,7 @@ app.post("/chat", async (req, res) => {
 });
 
 // fetch chat
-app.get("/chats", (req, res) => {
+app.get("/chats",verifyToken, (req, res) => {
   Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
     .populate("users", "-password")
     .populate("groupadmin", "-password")
@@ -138,6 +143,7 @@ app.get("/chats", (req, res) => {
       res.status(200).send(results);
     });
 });
+
 // create groupchat
 app.post("/groupchat", async (req, res) => {
   const { users, chatname } = req.body;

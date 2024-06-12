@@ -1,9 +1,12 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const ChatNavbar = () => {
   const [add, setadd] = useState(true);
+  const router = useRouter();
+
   return (
     <div className="rounded-full bg-white/15">
       <div className="flex justify-between items-center p-3">
@@ -24,7 +27,10 @@ const ChatNavbar = () => {
             add_comment
           </span>
           <span className="material-symbols-outlined">groups</span>
-          <span className="material-symbols-outlined">logout</span>
+          <span className="material-symbols-outlined" onClick={()=>{
+            localStorage.removeItem('token');
+            router.push("/");
+          }}>logout</span>
         </div>
       </div>
 

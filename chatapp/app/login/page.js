@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
@@ -11,7 +11,7 @@ const page = () => {
   const router = useRouter();
 
   const handlechange = (e) => {
-    setform({...form , [e.target.name]: e.target.value});
+    setform({ ...form, [e.target.name]: e.target.value });
     console.log(form);
   };
 
@@ -25,8 +25,8 @@ const page = () => {
       body: JSON.stringify(data),
     });
     console.log(response);
-    if(response.ok){
-      toast.success('Login Successfully!', {
+    if (response.ok) {
+      toast.success("Login Successfully!", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -35,8 +35,10 @@ const page = () => {
         draggable: true,
         progress: undefined,
         theme: "dark",
-        });
-        router.push("/chats");
+      });
+      const data1 = await response.json();
+      localStorage.setItem("token", data1.data.token);
+      router.push("/chats");
     }
   }
 

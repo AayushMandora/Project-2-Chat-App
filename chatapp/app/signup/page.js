@@ -23,9 +23,10 @@ const page = () => {
       },
       body: JSON.stringify(data),
     });
-    console.log(response);
-    if(response.ok){
-      toast.success('User Registered Successfully!', {
+    if (response.ok) {
+      const data1 = await response.json();
+      localStorage.setItem("token", data1.token);
+      toast.success("User Registered Successfully!", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -34,8 +35,8 @@ const page = () => {
         draggable: true,
         progress: undefined,
         theme: "dark",
-        });
-        router.push("/login");
+      });
+      router.push("/login");
     }
   }
 

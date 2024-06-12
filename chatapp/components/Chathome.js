@@ -1,9 +1,32 @@
+"use client";
 import React from "react";
 import ChatNavbar from "./ChatNavbar";
 import Image from "next/image";
 import Chat from "./Chat";
+import { useState, useEffect } from "react";
 
 const Chathome = () => {
+  const [search, setsearch] = useState("");
+  const [Users, setUsers] = useState([]);
+  const [chats, setchats] = useState([]);
+
+  const fetchchats = async () => {
+    let token = localStorage.getItem("token");
+    const res = await fetch(`http://127.0.0.1:5000/chats`, {
+      method: "get",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+    });
+    let result = await res.json();
+    setchats(result);
+  };
+
+  useEffect(() => {
+    fetchchats();
+  }, []);
+
   return (
     <div className="flex p-4 gap-5">
       <div className="w-1/3 flex flex-col gap-4">
@@ -13,10 +36,28 @@ const Chathome = () => {
             <input
               type="text"
               name="Search"
+              value={search}
               id="floating_Search"
               className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
               placeholder=""
               required
+              onChange={async (e) => {
+                setsearch(e.target.value);
+                let token = localStorage.getItem("token");
+                const res = await fetch(
+                  `http://127.0.0.1:5000/users?search=${search}`,
+                  {
+                    method: "GET",
+                    headers: {
+                      "Content-Type": "application/json",
+                      authorization: `Bearer ${token}`,
+                    },
+                  }
+                );
+                let users = await res.json();
+                setUsers(users);
+                console.log(Users);
+              }}
             />
             <label
               htmlFor="floating_Search"
@@ -25,7 +66,66 @@ const Chathome = () => {
               Search user
             </label>
           </div>
-          <div className="rounded-full p-3 flex gap-5 hover:bg-black/25 hover:cursor-pointer">
+
+          {search.length > 0 &&
+            Users.map((user) => {
+              return (
+                <div
+                  key={user._id}
+                  className="rounded-full p-3 flex gap-5 hover:bg-black/25 hover:cursor-pointer"
+                  onClick={async () => {
+                    let token = localStorage.getItem("token");
+                    const res = await fetch(`http://127.0.0.1:5000/chat`, {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                        authorization: `Bearer ${token}`,
+                      },
+                      body: JSON.stringify({ userID: user._id }),
+                    });
+                    fetchchats();
+                  }}
+                >
+                  <div className="flex items-center">
+                    <Image
+                      src="/Profile.webp"
+                      width={40}
+                      height={40}
+                      alt="Picture of the author"
+                      className="rounded-full"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <span>{user.username}</span>
+                    <span className=" text-sm text-white/25">Last Message</span>
+                  </div>
+                </div>
+              );
+            })}
+          {search <= 0 && chats.map((chat)=>{
+              return (
+                <div
+                  key={chat._id}
+                  className="rounded-full p-3 flex gap-5 hover:bg-black/25 hover:cursor-pointer"
+                >
+                  <div className="flex items-center">
+                    <Image
+                      src="/Profile.webp"
+                      width={40}
+                      height={40}
+                      alt="Picture of the author"
+                      className="rounded-full"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <span>{chat.chatname}</span>
+                    <span className=" text-sm text-white/25">Last Message</span>
+                  </div>
+                </div>
+              );
+            })}
+
+          {/* <div className="rounded-full p-3 flex gap-5 hover:bg-black/25 hover:cursor-pointer">
             <div className="flex items-center">
               <Image
                 src="/Profile.webp"
@@ -69,22 +169,7 @@ const Chathome = () => {
               <span>UserName</span>
               <span className=" text-sm text-white/25">Last Message</span>
             </div>
-          </div>
-          <div className="rounded-full p-3 flex gap-5 hover:bg-black/25 hover:cursor-pointer">
-            <div className="flex items-center">
-              <Image
-                src="/Profile.webp"
-                width={40}
-                height={40}
-                alt="Picture of the author"
-                className="rounded-full"
-              />
-            </div>
-            <div className="flex flex-col">
-              <span>UserName</span>
-              <span className=" text-sm text-white/25">Last Message</span>
-            </div>
-          </div>
+          </div> */}
         </div>
       </div>
       <Chat />

@@ -1,8 +1,20 @@
+"use client"
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+
 
 export default function Home() {
+  const router = useRouter();
+  useEffect(() => {
+    let token=localStorage.getItem('token');
+    if(token){
+      router.push('/chats')
+    }
+  },[])
+  
   return (
     <>
       <Navbar/>
