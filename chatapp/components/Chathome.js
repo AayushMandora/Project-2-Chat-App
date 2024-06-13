@@ -83,6 +83,7 @@ const Chathome = () => {
                       },
                       body: JSON.stringify({ userID: user._id }),
                     });
+                    setsearch("");
                     fetchchats();
                   }}
                 >
@@ -102,7 +103,8 @@ const Chathome = () => {
                 </div>
               );
             })}
-          {search <= 0 && chats.map((chat)=>{
+          {chats.length > 0 &&
+            chats.map((chat) => {
               return (
                 <div
                   key={chat._id}

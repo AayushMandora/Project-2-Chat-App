@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 
 const ChatNavbar = () => {
   const [add, setadd] = useState(true);
+  const [search, setsearch] = useState("");
+  const [Users, setUsers] = useState([]);
+  const [selectedusers, setselectedusers] = useState([]);
+  const [groupname, setgroupname] = useState("");
   const router = useRouter();
 
   return (
@@ -27,10 +31,15 @@ const ChatNavbar = () => {
             add_comment
           </span>
           <span className="material-symbols-outlined">groups</span>
-          <span className="material-symbols-outlined" onClick={()=>{
-            localStorage.removeItem('token');
-            router.push("/");
-          }}>logout</span>
+          <span
+            className="material-symbols-outlined"
+            onClick={() => {
+              localStorage.removeItem("token");
+              router.push("/");
+            }}
+          >
+            logout
+          </span>
         </div>
       </div>
 
@@ -41,19 +50,28 @@ const ChatNavbar = () => {
         <div className="bg-black p-5 rounded-2xl flex flex-col gap-5 items-center">
           <div className="flex w-full justify-between">
             <h1 className=" font-black text-xl">Create Group Chat</h1>
-            <span className="material-symbols-outlined invert-0 cursor-pointer" onClick={() => {
-              setadd(true);
-            }}>cancel</span>
+            <span
+              className="material-symbols-outlined invert-0 cursor-pointer"
+              onClick={() => {
+                setadd(true);
+              }}
+            >
+              cancel
+            </span>
           </div>
           <div className=" w-full">
             <div className="relative z-0 w-full mb-5 group">
               <input
                 type="text"
                 name="group_name"
+                value={groupname}
                 id="floating_Group_name"
                 className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                 placeholder=""
                 required
+                onChange={(e) => {
+                  setgroupname(e.target.value);
+                }}
               />
               <label
                 htmlFor="floating_Group_name"
@@ -66,10 +84,27 @@ const ChatNavbar = () => {
               <input
                 type="text"
                 name="add_user"
+                value={search}
                 id="floating_add"
                 className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                 placeholder=""
                 required
+                onChange={async (e) => {
+                  setsearch(e.target.value);
+                  let token = localStorage.getItem("token");
+                  const res = await fetch(
+                    `http://127.0.0.1:5000/users?search=${search}`,
+                    {
+                      method: "GET",
+                      headers: {
+                        "Content-Type": "application/json",
+                        authorization: `Bearer ${token}`,
+                      },
+                    }
+                  );
+                  let users = await res.json();
+                  setUsers(users);
+                }}
               />
               <label
                 htmlFor="floating_add"
@@ -78,10 +113,71 @@ const ChatNavbar = () => {
                 Add users
               </label>
             </div>
+            <ul className="flex gap-1 flex-wrap mb-3">
+              {Object.keys(selectedusers).map((key) => (
+                <li
+                  key={key}
+                  className=" rounded bg-white/15 p-1 text-sm flex gap-1 items-center cursor-pointer"
+                >
+                  {" "}
+                  <div className="flex items-center">
+                    <Image
+                      src="/Profile.webp"
+                      width={15}
+                      height={15}
+                      alt="Picture of the author"
+                      className="rounded-full"
+                    />
+                  </div>
+                  {selectedusers[key].username}
+                </li>
+              ))}
+            </ul>
+            {search.length > 0 &&
+              Users.map((user) => {
+                return (
+                  <div
+                    key={user._id}
+                    className="rounded-full p-3 flex gap-5 hover:cursor-pointer hover:bg-white/15"
+                    onClick={() => {
+                      setselectedusers({ ...selectedusers, [user._id]: user });
+                      console.log(selectedusers);
+                    }}
+                  >
+                    <div className="flex items-center">
+                      <Image
+                        src="/Profile.webp"
+                        width={40}
+                        height={40}
+                        alt="Picture of the author"
+                        className="rounded-full"
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <span>{user.username}</span>
+                      <span className="text-sm">{user.email}</span>
+                    </div>
+                  </div>
+                );
+              })}
           </div>
           <button
             type="submit"
             className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            onClick={async () => {
+              let token = localStorage.getItem("token");
+              const res = await fetch(`http://127.0.0.1:5000/groupchat`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  users: Object.values(selectedusers),
+                  chatname: groupname ,
+                }),
+              });
+            }}
           >
             Create Chat
           </button>

@@ -56,7 +56,7 @@ app.post("/login", async (req, res) => {
     //Creating jwt token
     token = jwt.sign(
       {
-        userId: existingUser._id,
+        userId:existingUser._id,
       },
       "Aayush",
       { expiresIn: "30d" }
@@ -87,7 +87,7 @@ app.get("/users",verifyToken, async (req, res) => {
       }
     : {};
 
-  const users =await (await User.find(keyword).find({_id:{$ne:req.user._id}}))
+  const users = await (await User.find(keyword).find({_id:{$ne:req.user._id}}));
   // const users = await User.find(keyword);
   res.status(200).json(users);
 });
@@ -145,7 +145,7 @@ app.get("/chats",verifyToken, (req, res) => {
 });
 
 // create groupchat
-app.post("/groupchat", async (req, res) => {
+app.post("/groupchat",verifyToken, async (req, res) => {
   const { users, chatname } = req.body;
   users.push(req.user);
   const groupchat = await Chat.create({
@@ -159,6 +159,7 @@ app.post("/groupchat", async (req, res) => {
     .populate("groupadmin", "-password");
   res.status(200).send(fullgroupchat);
 });
+
 // add to a groupchat
 app.post("/adduser", async (req, res) => {
   const { userID, chatid } = req.body;
