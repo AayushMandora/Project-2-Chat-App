@@ -9,11 +9,13 @@ const Chathome = () => {
   const [search, setsearch] = useState("");
   const [Users, setUsers] = useState([]);
   const [chats, setchats] = useState([]);
+  const [selecteduser, setselecteduser] = useState();
+  const [allmessage, setallmessage] = useState([]);
 
   const fetchchats = async () => {
     let token = localStorage.getItem("token");
     const res = await fetch(`http://127.0.0.1:5000/chats`, {
-      method: "get",
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
         authorization: `Bearer ${token}`,
@@ -22,6 +24,20 @@ const Chathome = () => {
     let result = await res.json();
     setchats(result);
   };
+
+  const fetchallmessage = async (id)=>{
+    let token = localStorage.getItem("token");
+    const res = await fetch(`http://127.0.0.1:5000/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+    });
+    let result = await res.json();
+    setallmessage(result);
+    console.log(allmessage);
+  }
 
   useEffect(() => {
     fetchchats();
@@ -103,12 +119,16 @@ const Chathome = () => {
                 </div>
               );
             })}
-          {chats.length > 0 &&
+          {search.length==0 &&
             chats.map((chat) => {
               return (
                 <div
                   key={chat._id}
                   className="rounded-full p-3 flex gap-5 hover:bg-black/25 hover:cursor-pointer"
+                  onClick={(e)=>{
+                    setselecteduser(chat);
+                    fetchallmessage(chat._id);
+                  }}
                 >
                   <div className="flex items-center">
                     <Image
@@ -126,55 +146,9 @@ const Chathome = () => {
                 </div>
               );
             })}
-
-          {/* <div className="rounded-full p-3 flex gap-5 hover:bg-black/25 hover:cursor-pointer">
-            <div className="flex items-center">
-              <Image
-                src="/Profile.webp"
-                width={40}
-                height={40}
-                alt="Picture of the author"
-                className="rounded-full"
-              />
-            </div>
-            <div className="flex flex-col">
-              <span>UserName</span>
-              <span className=" text-sm text-white/25">Last Message</span>
-            </div>
-          </div>
-          <div className="rounded-full p-3 flex gap-5 hover:bg-black/25 hover:cursor-pointer">
-            <div className="flex items-center">
-              <Image
-                src="/Profile.webp"
-                width={40}
-                height={40}
-                alt="Picture of the author"
-                className="rounded-full"
-              />
-            </div>
-            <div className="flex flex-col">
-              <span>UserName</span>
-              <span className=" text-sm text-white/25">Last Message</span>
-            </div>
-          </div>
-          <div className="rounded-full p-3 flex gap-5 hover:bg-black/25 hover:cursor-pointer">
-            <div className="flex items-center">
-              <Image
-                src="/Profile.webp"
-                width={40}
-                height={40}
-                alt="Picture of the author"
-                className="rounded-full"
-              />
-            </div>
-            <div className="flex flex-col">
-              <span>UserName</span>
-              <span className=" text-sm text-white/25">Last Message</span>
-            </div>
-          </div> */}
         </div>
       </div>
-      <Chat />
+      {selecteduser && <Chat chat={selecteduser} messages={allmessage} />}
     </div>
   );
 };

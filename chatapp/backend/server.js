@@ -7,8 +7,9 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const Chat = require("./models/chatmodel");
-const verifyToken=require("./models/verify");
-require('dotenv').config();
+const verifyToken = require("./models/verify");
+const Message = require("./models/Messagemodel");
+require("dotenv").config();
 
 connectDB();
 
@@ -19,7 +20,7 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.post("/register",async (req, res) => {
+app.post("/register", async (req, res) => {
   const { email, password, username } = req.body;
   const user = await User.create({ email, password, username });
   console.log(user._id);
@@ -56,7 +57,7 @@ app.post("/login", async (req, res) => {
     //Creating jwt token
     token = jwt.sign(
       {
-        userId:existingUser._id,
+        userId: existingUser._id,
       },
       "Aayush",
       { expiresIn: "30d" }
@@ -77,7 +78,7 @@ app.post("/login", async (req, res) => {
 });
 
 // search alluser
-app.get("/users",verifyToken, async (req, res) => {
+app.get("/users", verifyToken, async (req, res) => {
   const keyword = req.query.search
     ? {
         $or: [
@@ -87,15 +88,17 @@ app.get("/users",verifyToken, async (req, res) => {
       }
     : {};
 
-  const users = await (await User.find(keyword).find({_id:{$ne:req.user._id}}));
+  const users = await await User.find(keyword).find({
+    _id: { $ne: req.user._id },
+  });
   // const users = await User.find(keyword);
   res.status(200).json(users);
 });
 
 // access chat
-app.post("/chat",verifyToken, async (req, res) => {
+app.post("/chat", verifyToken, async (req, res) => {
   const { userID } = req.body;
-  let sender=await User.findById(userID);
+  let sender = await User.findById(userID);
   if (!userID) {
     return res.status(400).json("userId not sent with request");
   }
@@ -129,7 +132,7 @@ app.post("/chat",verifyToken, async (req, res) => {
 });
 
 // fetch chat
-app.get("/chats",verifyToken, (req, res) => {
+app.get("/chats", verifyToken, (req, res) => {
   Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
     .populate("users", "-password")
     .populate("groupadmin", "-password")
@@ -145,7 +148,7 @@ app.get("/chats",verifyToken, (req, res) => {
 });
 
 // create groupchat
-app.post("/groupchat",verifyToken, async (req, res) => {
+app.post("/groupchat", verifyToken, async (req, res) => {
   const { users, chatname } = req.body;
   users.push(req.user);
   const groupchat = await Chat.create({
@@ -173,6 +176,7 @@ app.post("/adduser", async (req, res) => {
     .populate("users", "-password")
     .populate("groupadmin", "-password");
 });
+
 // remove user from groupchat
 app.post("/removeuser", async (req, res) => {
   const { userID, chatid } = req.body;
@@ -186,6 +190,36 @@ app.post("/removeuser", async (req, res) => {
     .populate("users", "-password")
     .populate("groupadmin", "-password");
 });
+
+// sendmessage api
+app.post("/sendmessage", verifyToken, async (req, res) => {
+  const { chatID, content } = req.body;
+
+  var newmessage = {
+    sender: req.user._id,
+    content: content,
+    chat: chatID,
+  };
+
+  let message = await Message.create(newmessage);
+  message = await message.populate("sender", "name");
+  message = await message.populate("chat");
+  message = await User.populate(message, {
+    path: "chat.users",
+    select: "name email",
+  });
+
+  await Chat.findByIdAndUpdate(chatID, {
+    latestmessage: message,
+  });
+  res.send(message);
+});
+
+// Fetch all messages
+app.get("/:chatID",verifyToken,async(req,res)=>{
+  const messages=await Message.find({chat:req.params.chatID}).populate("sender","name email").populate("chat");
+  res.json(messages);
+})
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
