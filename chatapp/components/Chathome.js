@@ -11,7 +11,7 @@ const Chathome = () => {
   const [chats, setchats] = useState([]);
   const [selecteduser, setselecteduser] = useState();
   const [allmessage, setallmessage] = useState([]);
-
+  const loggeduser = JSON.parse(localStorage.getItem("userdata"));
   const fetchchats = async () => {
     let token = localStorage.getItem("token");
     const res = await fetch(`http://127.0.0.1:5000/chats`, {
@@ -25,7 +25,7 @@ const Chathome = () => {
     setchats(result);
   };
 
-  const fetchallmessage = async (id)=>{
+  const fetchallmessage = async (id) => {
     let token = localStorage.getItem("token");
     const res = await fetch(`http://127.0.0.1:5000/${id}`, {
       method: "GET",
@@ -37,10 +37,11 @@ const Chathome = () => {
     let result = await res.json();
     setallmessage(result);
     console.log(allmessage);
-  }
+  };
 
   useEffect(() => {
     fetchchats();
+    console.log(loggeduser);
   }, []);
 
   return (
@@ -119,13 +120,13 @@ const Chathome = () => {
                 </div>
               );
             })}
-          {search.length==0 &&
+          {search.length == 0 &&
             chats.map((chat) => {
               return (
                 <div
                   key={chat._id}
                   className="rounded-full p-3 flex gap-5 hover:bg-black/25 hover:cursor-pointer"
-                  onClick={(e)=>{
+                  onClick={(e) => {
                     setselecteduser(chat);
                     fetchallmessage(chat._id);
                   }}
@@ -140,7 +141,18 @@ const Chathome = () => {
                     />
                   </div>
                   <div className="flex flex-col">
-                    <span>{chat.chatname}</span>
+                    {console.log(
+                      chat.users[0].email,
+                      loggeduser.userId,
+                      chat.users[1].username
+                    )}
+                    <span>
+                      {!chat.groupchat
+                        ? chat.users[0].email == loggeduser.email
+                          ? chat.users[1].username
+                          : chat.users[0].username
+                        : chat.chatname}
+                    </span>
                     <span className=" text-sm text-white/25">Last Message</span>
                   </div>
                 </div>

@@ -25,6 +25,7 @@ const page = () => {
     });
     if (response.ok) {
       const data1 = await response.json();
+      localStorage.setItem("userdata", JSON.stringify(data1.data));
       localStorage.setItem("token", data1.token);
       toast.success("User Registered Successfully!", {
         position: "top-center",

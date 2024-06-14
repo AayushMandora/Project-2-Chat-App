@@ -4,6 +4,7 @@ import { useState } from "react";
 
 const Chat = ({ chat, messages }) => {
   const [message, setmessage] = useState("");
+  const loggeduser = JSON.parse(localStorage.getItem("userdata"));
 
   const sendmessage = async () => {
     let token = localStorage.getItem("token");
@@ -32,7 +33,13 @@ const Chat = ({ chat, messages }) => {
           />
         </div>
         <div className="flex flex-col">
-          <span>{chat.chatname}</span>
+          <span>
+            {!chat.groupchat
+              ? chat.users[0].email == loggeduser.email
+                ? chat.users[1].username
+                : chat.users[0].username
+              : chat.chatname}
+          </span>
           <span className=" text-sm text-white/25">
             Click here for contact info
           </span>
@@ -56,23 +63,37 @@ const Chat = ({ chat, messages }) => {
         </div> */}
         {messages.map((message) => {
           return (
-            <div className="flex gap-2 mt-3">
-              <div className="flex items-center">
-                <Image
-                  src="/Profile.webp"
-                  width={25}
-                  height={25}
-                  alt="Picture of the author"
-                  className="rounded-full"
-                />
-              </div>
-              <div className="bg-white/15 max-w-[60%] rounded-xl p-1 flex gap-1">
-                <div className="p-1">{message.content}</div>
-                <span className=" text-white/30 text-[12px] self-end">
+            <>
+              {message.sender.email !== loggeduser.email ? (
+                <div className="flex gap-2 mt-3">
+                  <div className="flex items-center">
+                    <Image
+                      src="/Profile.webp"
+                      width={25}
+                      height={25}
+                      alt="Picture of the author"
+                      className="rounded-full"
+                    />
+                    {/* {console.log(chat)} */}
+                  </div>
+                  <div className="bg-white/15 max-w-[60%] rounded-xl p-1 flex gap-1">
+                    <div className="p-1">{message.content}</div>
+                    {/* <span className=" text-white/30 text-[12px] self-end">
                   10:34
-                </span>
-              </div>
-            </div>
+                </span> */}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex gap-2 mt-3 static flex-row-reverse">
+                  <div className="bg-white/15 max-w-[60%] rounded-xl p-1 flex gap-1">
+                    <div className="p-1">{message.content}</div>
+                    {/* <span className=" text-white/30 text-[12px] self-end">
+                          10:34
+                        </span> */}
+                  </div>
+                </div>
+              )}
+            </>
           );
         })}
       </div>
@@ -90,7 +111,7 @@ const Chat = ({ chat, messages }) => {
           }}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              e.preventDefault(); // Prevent the default action of the Enter key (e.g., form submission)
+              e.preventDefault();
               sendmessage();
             }
           }}

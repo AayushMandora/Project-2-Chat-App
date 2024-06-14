@@ -82,7 +82,7 @@ app.get("/users", verifyToken, async (req, res) => {
   const keyword = req.query.search
     ? {
         $or: [
-          { name: { $regex: req.query.search, $options: "i" } },
+          { username: { $regex: req.query.search, $options: "i" } },
           { email: { $regex: req.query.search, $options: "i" } },
         ],
       }
@@ -95,10 +95,9 @@ app.get("/users", verifyToken, async (req, res) => {
   res.status(200).json(users);
 });
 
-// access chat
+// access chat or create chat
 app.post("/chat", verifyToken, async (req, res) => {
   const { userID } = req.body;
-  let sender = await User.findById(userID);
   if (!userID) {
     return res.status(400).json("userId not sent with request");
   }
@@ -119,7 +118,7 @@ app.post("/chat", verifyToken, async (req, res) => {
     res.send(chat[0]);
   } else {
     const createdchat = await Chat.create({
-      chatname: sender.username,
+      chatname: "sender",
       groupchat: false,
       users: [req.user._id, userID],
     });
@@ -202,11 +201,11 @@ app.post("/sendmessage", verifyToken, async (req, res) => {
   };
 
   let message = await Message.create(newmessage);
-  message = await message.populate("sender", "name");
+  message = await message.populate("sender", "username");
   message = await message.populate("chat");
   message = await User.populate(message, {
     path: "chat.users",
-    select: "name email",
+    select: "username email",
   });
 
   await Chat.findByIdAndUpdate(chatID, {
@@ -217,7 +216,7 @@ app.post("/sendmessage", verifyToken, async (req, res) => {
 
 // Fetch all messages
 app.get("/:chatID",verifyToken,async(req,res)=>{
-  const messages=await Message.find({chat:req.params.chatID}).populate("sender","name email").populate("chat");
+  const messages=await Message.find({chat:req.params.chatID}).populate("sender","username email").populate("chat");
   res.json(messages);
 })
 

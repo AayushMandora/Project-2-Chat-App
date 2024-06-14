@@ -38,6 +38,7 @@ const page = () => {
       });
       const data1 = await response.json();
       localStorage.setItem("token", data1.data.token);
+      localStorage.setItem("userdata", JSON.stringify(data1.data));
       router.push("/chats");
     }
   }

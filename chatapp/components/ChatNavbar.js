@@ -35,6 +35,7 @@ const ChatNavbar = () => {
             className="material-symbols-outlined"
             onClick={() => {
               localStorage.removeItem("token");
+              localStorage.removeItem("userdata");
               router.push("/");
             }}
           >
