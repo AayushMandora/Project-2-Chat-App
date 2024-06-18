@@ -174,12 +174,13 @@ app.post("/adduser", async (req, res) => {
   )
     .populate("users", "-password")
     .populate("groupadmin", "-password");
+    res.status(200).send(added);
 });
 
 // remove user from groupchat
 app.post("/removeuser", async (req, res) => {
   const { userID, chatid } = req.body;
-  const removed = await Chat.findByIdAndDelete(
+  const removed = await Chat.findByIdAndUpdate(
     chatid,
     {
       $pull: { users: userID },
@@ -188,6 +189,7 @@ app.post("/removeuser", async (req, res) => {
   )
     .populate("users", "-password")
     .populate("groupadmin", "-password");
+    res.status(200).send(removed);
 });
 
 // sendmessage api

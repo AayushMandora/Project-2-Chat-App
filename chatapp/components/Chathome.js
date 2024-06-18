@@ -115,7 +115,7 @@ const Chathome = () => {
                   </div>
                   <div className="flex flex-col">
                     <span>{user.username}</span>
-                    <span className=" text-sm text-white/25">Last Message</span>
+                    <span className=" text-sm text-white/25">{user.email}</span>
                   </div>
                 </div>
               );
@@ -153,7 +153,7 @@ const Chathome = () => {
                           : chat.users[0].username
                         : chat.chatname}
                     </span>
-                    <span className=" text-sm text-white/25">Last Message</span>
+                    {/* <span className=" text-sm text-white/25">Last Message</span> */}
                   </div>
                 </div>
               );

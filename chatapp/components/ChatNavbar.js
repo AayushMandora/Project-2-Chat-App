@@ -43,7 +43,7 @@ const ChatNavbar = () => {
           </span>
         </div>
       </div>
-
+        {/* Create Group Div */}
       <div
         hidden={add}
         className="w-[35%] absolute left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]"
