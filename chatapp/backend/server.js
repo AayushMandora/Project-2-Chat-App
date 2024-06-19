@@ -9,6 +9,8 @@ const jwt = require("jsonwebtoken");
 const Chat = require("./models/chatmodel");
 const verifyToken = require("./models/verify");
 const Message = require("./models/Messagemodel");
+const upload = require("./models/storeprofilepic");
+
 require("dotenv").config();
 
 connectDB();
@@ -20,10 +22,14 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-app.post("/register", async (req, res) => {
+app.post("/register", upload.single("ProfilePic"), async (req, res) => {
   const { email, password, username } = req.body;
-  const user = await User.create({ email, password, username });
-  console.log(user._id);
+  const user = await User.create({
+    email,
+    password,
+    username,
+    ProfilePic: req.file.filename,
+  });
   let token = jwt.sign(
     {
       userId: user._id,
@@ -72,6 +78,7 @@ app.post("/login", async (req, res) => {
     data: {
       userId: existingUser._id,
       email: existingUser.email,
+      ProfilePic:existingUser.ProfilePic,
       token: token,
     },
   });
@@ -147,12 +154,14 @@ app.get("/chats", verifyToken, (req, res) => {
 });
 
 // create groupchat
-app.post("/groupchat", verifyToken, async (req, res) => {
-  const { users, chatname } = req.body;
+app.post("/groupchat", verifyToken,upload.single("ProfilePic"), async (req, res) => {
+  let { users, chatname } = req.body;
+  users=JSON.parse(users);
   users.push(req.user);
   const groupchat = await Chat.create({
     chatname: chatname,
     groupchat: true,
+    ProfilePic: req.file.filename,
     users: users,
     groupadmin: req.user,
   });
@@ -174,7 +183,7 @@ app.post("/adduser", async (req, res) => {
   )
     .populate("users", "-password")
     .populate("groupadmin", "-password");
-    res.status(200).send(added);
+  res.status(200).send(added);
 });
 
 // remove user from groupchat
@@ -189,7 +198,7 @@ app.post("/removeuser", async (req, res) => {
   )
     .populate("users", "-password")
     .populate("groupadmin", "-password");
-    res.status(200).send(removed);
+  res.status(200).send(removed);
 });
 
 // sendmessage api
@@ -217,10 +226,12 @@ app.post("/sendmessage", verifyToken, async (req, res) => {
 });
 
 // Fetch all messages
-app.get("/:chatID",verifyToken,async(req,res)=>{
-  const messages=await Message.find({chat:req.params.chatID}).populate("sender","username email").populate("chat");
+app.get("/:chatID", verifyToken, async (req, res) => {
+  const messages = await Message.find({ chat: req.params.chatID })
+    .populate("sender", "username email ProfilePic")
+    .populate("chat");
   res.json(messages);
-})
+});
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

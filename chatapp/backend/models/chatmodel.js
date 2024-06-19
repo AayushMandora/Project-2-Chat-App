@@ -5,6 +5,7 @@ const Chatschema = new Schema(
   {
     chatname: { type: String, trim: true },
     groupchat: { type: Boolean, default: false },
+    ProfilePic:{type:String},
     users: [
       {
         type: mongoose.Schema.Types.ObjectId,

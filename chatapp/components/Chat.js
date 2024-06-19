@@ -1,8 +1,9 @@
 import React from "react";
 import Image from "next/image";
-import { useState } from "react";
+import { useState,useEffect } from "react";
+import { toast } from "react-toastify";
 
-const Chat = ({ chat, messages }) => {
+const Chat = ({ chat, messages, setselecteduser }) => {
   const [message, setmessage] = useState("");
   const loggeduser = JSON.parse(localStorage.getItem("userdata"));
   const [details, setdetails] = useState(true);
@@ -21,8 +22,14 @@ const Chat = ({ chat, messages }) => {
       },
       body: JSON.stringify({ chatID: chat._id, content: message }),
     });
-    console.log(await res.json());
   };
+
+  useEffect(() => {
+    if(details=== false){
+      setdetails(true);
+    }
+  }, [chat])
+  
 
   return (
     <>
@@ -35,11 +42,15 @@ const Chat = ({ chat, messages }) => {
         >
           <div className="flex items-center">
             <Image
-              src="/Profile.webp"
+              src={`/uploads/${!chat.groupchat
+                ? chat.users[0].email == loggeduser.email
+                  ? chat.users[1].ProfilePic
+                  : chat.users[0].ProfilePic
+                : chat.ProfilePic}`}
               width={40}
               height={40}
               alt="Picture of the author"
-              className="rounded-full"
+              className="rounded-full h-[40px] w-[40px] object-cover"
             />
           </div>
           <div className="flex flex-col">
@@ -63,11 +74,11 @@ const Chat = ({ chat, messages }) => {
                   <div className="flex gap-2 mt-3">
                     <div className="flex items-center">
                       <Image
-                        src="/Profile.webp"
+                        src={`/uploads/${message.sender.ProfilePic}`}
                         width={25}
                         height={25}
                         alt="Picture of the author"
-                        className="rounded-full"
+                        className="rounded-full h-[25px] w-[25px] object-cover"
                       />
                     </div>
                     <div className="bg-white/15 max-w-[60%] rounded-xl p-1 flex gap-1">
@@ -117,6 +128,7 @@ const Chat = ({ chat, messages }) => {
           </span>
         </div>
       </div>
+
       {/* Details Div */}
       <div
         hidden={details}
@@ -135,11 +147,15 @@ const Chat = ({ chat, messages }) => {
         <div className="flex flex-col items-center gap-3">
           <div className="flex items-center">
             <Image
-              src="/Profile.webp"
+              src={`/uploads/${!chat.groupchat
+                ? chat.users[0].email == loggeduser.email
+                  ? chat.users[1].ProfilePic
+                  : chat.users[0].ProfilePic
+                : chat.ProfilePic}`}
               width={80}
               height={80}
               alt="Picture of the author"
-              className="rounded-full"
+              className="rounded-full h-[80px] w-[80px] object-cover"
             />
           </div>
           <span className=" font-bold">
@@ -165,7 +181,7 @@ const Chat = ({ chat, messages }) => {
               </span>
             </div>
           )}
-          {adduser && (
+          {adduser || chat.groupchat && (
             <div className="relative z-0 w-full mb-5 group">
               <input
                 type="text"
@@ -220,11 +236,11 @@ const Chat = ({ chat, messages }) => {
                         >
                           <div className="flex items-center">
                             <Image
-                              src="/Profile.webp"
+                              src={`/uploads/${user.ProfilePic}`}
                               width={40}
                               height={40}
                               alt="Picture of the author"
-                              className="rounded-full"
+                              className="rounded-full h-[40px] w-[80px] object-cover"
                             />
                           </div>
                           <div className="flex flex-col">
@@ -251,6 +267,20 @@ const Chat = ({ chat, messages }) => {
                                   }),
                                 }
                               );
+                              let updatechat = await res.json();
+                              setselecteduser(updatechat);
+                              if (res.ok) {
+                                toast.success("User Removed Successfully!", {
+                                  position: "top-center",
+                                  autoClose: 5000,
+                                  hideProgressBar: false,
+                                  closeOnClick: true,
+                                  pauseOnHover: true,
+                                  draggable: true,
+                                  progress: undefined,
+                                  theme: "dark",
+                                });
+                              }
                             }}
                           >
                             cancel
@@ -279,16 +309,30 @@ const Chat = ({ chat, messages }) => {
                                 }),
                               }
                             );
+                            let updatechat = await res.json();
+                            setselecteduser(updatechat);
                             setsearch("");
+                            if (res.ok) {
+                              toast.success("User Added Successfully!", {
+                                position: "top-center",
+                                autoClose: 5000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                                progress: undefined,
+                                theme: "dark",
+                              });
+                            }
                           }}
                         >
                           <div className="flex items-center">
                             <Image
-                              src="/Profile.webp"
+                              src={`/uploads/${user.ProfilePic}`}
                               width={40}
                               height={40}
                               alt="Picture of the author"
-                              className="rounded-full"
+                              className="rounded-full h-[40px] w-[40px] object-cover"
                             />
                           </div>
                           <div className="flex flex-col">

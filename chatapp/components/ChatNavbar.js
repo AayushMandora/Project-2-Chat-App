@@ -6,20 +6,26 @@ import { useRouter } from "next/navigation";
 const ChatNavbar = () => {
   const [add, setadd] = useState(true);
   const [search, setsearch] = useState("");
+  const [file, setFile] = useState();
   const [Users, setUsers] = useState([]);
   const [selectedusers, setselectedusers] = useState([]);
   const [groupname, setgroupname] = useState("");
+  const loggeduser = JSON.parse(localStorage.getItem("userdata"));
   const router = useRouter();
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
 
   return (
     <div className="rounded-full bg-white/15">
       <div className="flex justify-between items-center p-3">
         <Image
-          src="/Profile.webp"
+          src={`/uploads/${loggeduser.ProfilePic}`}
           width={40}
           height={40}
           alt="Picture of the author"
-          className="rounded-full cursor-pointer"
+          className="rounded-full cursor-pointer h-[40px] w-[40px] object-cover"
         />
         <div className="flex items-center gap-4 cursor-pointer">
           <span
@@ -43,7 +49,7 @@ const ChatNavbar = () => {
           </span>
         </div>
       </div>
-        {/* Create Group Div */}
+      {/* Create Group Div */}
       <div
         hidden={add}
         className="w-[35%] absolute left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]"
@@ -81,6 +87,19 @@ const ChatNavbar = () => {
                 Group Name
               </label>
             </div>
+            <label
+              className="block mb-2 text-sm font-medium text-gray-500 "
+              htmlFor="file_input"
+            >
+              Upload Profile Pic
+            </label>
+            <input
+              className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+              id="file_input"
+              type="file"
+              name="ProfilePic"
+              onChange={handleFileChange}
+            />
             <div className="relative z-0 w-full mb-5 group">
               <input
                 type="text"
@@ -123,11 +142,11 @@ const ChatNavbar = () => {
                   {" "}
                   <div className="flex items-center">
                     <Image
-                      src="/Profile.webp"
+                      src={`/uploads/${selectedusers[key].ProfilePic}`}
                       width={15}
                       height={15}
                       alt="Picture of the author"
-                      className="rounded-full"
+                      className="rounded-full h-[15px] w-[15px] object-cover"
                     />
                   </div>
                   {selectedusers[key].username}
@@ -147,11 +166,11 @@ const ChatNavbar = () => {
                   >
                     <div className="flex items-center">
                       <Image
-                        src="/Profile.webp"
+                        src={`/uploads/${user.ProfilePic}`}
                         width={40}
                         height={40}
                         alt="Picture of the author"
-                        className="rounded-full"
+                        className="rounded-full h-[40px] w-[40px] object-cover"
                       />
                     </div>
                     <div className="flex flex-col">
@@ -166,17 +185,18 @@ const ChatNavbar = () => {
             type="submit"
             className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             onClick={async () => {
+              let users=JSON.stringify(Object.values(selectedusers));
+              const formData = new FormData();
+              formData.append("chatname", groupname);
+              formData.append("users",users);
+              formData.append("ProfilePic", file);
               let token = localStorage.getItem("token");
               const res = await fetch(`http://127.0.0.1:5000/groupchat`, {
                 method: "POST",
                 headers: {
-                  "Content-Type": "application/json",
                   authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({
-                  users: Object.values(selectedusers),
-                  chatname: groupname ,
-                }),
+                body: formData,
               });
             }}
           >

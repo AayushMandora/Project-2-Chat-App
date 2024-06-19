@@ -5,6 +5,7 @@ const Userschema=new Schema({
     email:{type:String,unique:true},
     password:{type:String},
     username:{type:String},
+    ProfilePic:{type:String},
     createdAt: {type: Date, default: Date.now}
 });
 

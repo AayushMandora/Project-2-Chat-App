@@ -12,6 +12,7 @@ const Chathome = () => {
   const [selecteduser, setselecteduser] = useState();
   const [allmessage, setallmessage] = useState([]);
   const loggeduser = JSON.parse(localStorage.getItem("userdata"));
+
   const fetchchats = async () => {
     let token = localStorage.getItem("token");
     const res = await fetch(`http://127.0.0.1:5000/chats`, {
@@ -41,8 +42,7 @@ const Chathome = () => {
 
   useEffect(() => {
     fetchchats();
-    console.log(loggeduser);
-  }, []);
+  },[]);
 
   return (
     <div className="flex p-4 gap-5">
@@ -73,7 +73,6 @@ const Chathome = () => {
                 );
                 let users = await res.json();
                 setUsers(users);
-                console.log(Users);
               }}
             />
             <label
@@ -106,11 +105,11 @@ const Chathome = () => {
                 >
                   <div className="flex items-center">
                     <Image
-                      src="/Profile.webp"
+                      src={`/uploads/${user.ProfilePic}`}
                       width={40}
                       height={40}
                       alt="Picture of the author"
-                      className="rounded-full"
+                      className="rounded-full h-[40px] w-[40px] object-cover"
                     />
                   </div>
                   <div className="flex flex-col">
@@ -133,19 +132,18 @@ const Chathome = () => {
                 >
                   <div className="flex items-center">
                     <Image
-                      src="/Profile.webp"
+                      src={`/uploads/${!chat.groupchat
+                        ? chat.users[0].email == loggeduser.email
+                          ? chat.users[1].ProfilePic
+                          : chat.users[0].ProfilePic
+                        : chat.ProfilePic}`}
                       width={40}
                       height={40}
                       alt="Picture of the author"
-                      className="rounded-full"
+                      className="rounded-full h-[40px] w-[40px] object-cover"
                     />
                   </div>
                   <div className="flex flex-col">
-                    {console.log(
-                      chat.users[0].email,
-                      loggeduser.userId,
-                      chat.users[1].username
-                    )}
                     <span>
                       {!chat.groupchat
                         ? chat.users[0].email == loggeduser.email
@@ -160,7 +158,7 @@ const Chathome = () => {
             })}
         </div>
       </div>
-      {selecteduser && <Chat chat={selecteduser} messages={allmessage} />}
+      {selecteduser && <Chat chat={selecteduser} setselecteduser={setselecteduser} messages={allmessage} />}
     </div>
   );
 };

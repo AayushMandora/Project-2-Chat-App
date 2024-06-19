@@ -8,20 +8,26 @@ import { useRouter } from "next/navigation";
 
 const page = () => {
   const [form, setform] = useState([]);
+  const [file, setFile] = useState();
   const router = useRouter();
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
 
   const handlechange = (e) => {
     setform({ ...form, [e.target.name]: e.target.value });
   };
 
   async function onSubmit() {
-    let data = form;
+    const formData = new FormData();
+    formData.append("email", form.email);
+    formData.append("password", form.password);
+    formData.append("username", form.username);
+    formData.append("ProfilePic", file);
     const response = await fetch("http://127.0.0.1:5000/register", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
+      body: formData,
     });
     if (response.ok) {
       const data1 = await response.json();
@@ -52,7 +58,7 @@ const page = () => {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <from className="space-y-6">
+          <from className="space-y-6" enctype="multipart/form-data">
             <div className="relative z-0 w-full mb-5 group">
               <input
                 type="email"
@@ -124,6 +130,21 @@ const page = () => {
                 Confirm Password
               </label>
             </div>
+
+            <label
+              className="block mb-2 text-sm font-medium text-gray-500 "
+              htmlFor="file_input"
+            >
+              Upload Profile Pic
+            </label>
+            <input
+              className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+              id="file_input"
+              type="file"
+              name="ProfilePic"
+              onChange={handleFileChange}
+            />
+
             <button
               type="submit"
               className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
