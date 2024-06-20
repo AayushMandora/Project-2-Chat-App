@@ -1,9 +1,9 @@
 import React from "react";
 import Image from "next/image";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
-const Chat = ({ chat, messages, setselecteduser }) => {
+const Chat = ({ chat, allmessage, setselecteduser, socket, setallmessage }) => {
   const [message, setmessage] = useState("");
   const loggeduser = JSON.parse(localStorage.getItem("userdata"));
   const [details, setdetails] = useState(true);
@@ -11,6 +11,10 @@ const Chat = ({ chat, messages, setselecteduser }) => {
   const [search, setsearch] = useState("");
   const [Users, setUsers] = useState([]);
 
+  const scrollend = () => {
+    let div = document.getElementById("scrolldiv");
+    div.scrollTop = div.scrollHeight;
+  };
   const sendmessage = async () => {
     let token = localStorage.getItem("token");
     setmessage("");
@@ -22,13 +26,20 @@ const Chat = ({ chat, messages, setselecteduser }) => {
       },
       body: JSON.stringify({ chatID: chat._id, content: message }),
     });
+    let data = await res.json();
+    socket.emit("new message", data);
+    setallmessage([...allmessage, data]);
   };
 
   useEffect(() => {
-    if(details=== false){
+    if (details === false) {
       setdetails(true);
     }
-  }, [chat])
+  }, [chat]);
+
+  useEffect(() => {
+    scrollend();
+  }, [allmessage])
   
 
   return (
@@ -42,11 +53,13 @@ const Chat = ({ chat, messages, setselecteduser }) => {
         >
           <div className="flex items-center">
             <Image
-              src={`/uploads/${!chat.groupchat
-                ? chat.users[0].email == loggeduser.email
-                  ? chat.users[1].ProfilePic
-                  : chat.users[0].ProfilePic
-                : chat.ProfilePic}`}
+              src={`/uploads/${
+                !chat.groupchat
+                  ? chat.users[0].email == loggeduser.email
+                    ? chat.users[1].ProfilePic
+                    : chat.users[0].ProfilePic
+                  : chat.ProfilePic
+              }`}
               width={40}
               height={40}
               alt="Picture of the author"
@@ -66,11 +79,15 @@ const Chat = ({ chat, messages, setselecteduser }) => {
             </span>
           </div>
         </div>
-        <div className="bg-black/25 h-[28rem] rounded-3xl p-3 overflow-auto no-scrollbar">
-          {messages.map((message) => {
+
+        <div
+          id="scrolldiv"
+          className="bg-black/25 h-[28rem] rounded-3xl p-3 overflow-auto scroll-smooth no-scrollbar"
+        >
+          {allmessage.map((message) => {
             return (
               <>
-                {message.sender.email !== loggeduser.email ? (
+                {message.sender._id !== loggeduser.userId ? (
                   <div className="flex gap-2 mt-3">
                     <div className="flex items-center">
                       <Image
@@ -128,7 +145,6 @@ const Chat = ({ chat, messages, setselecteduser }) => {
           </span>
         </div>
       </div>
-
       {/* Details Div */}
       <div
         hidden={details}
@@ -147,11 +163,13 @@ const Chat = ({ chat, messages, setselecteduser }) => {
         <div className="flex flex-col items-center gap-3">
           <div className="flex items-center">
             <Image
-              src={`/uploads/${!chat.groupchat
-                ? chat.users[0].email == loggeduser.email
-                  ? chat.users[1].ProfilePic
-                  : chat.users[0].ProfilePic
-                : chat.ProfilePic}`}
+              src={`/uploads/${
+                !chat.groupchat
+                  ? chat.users[0].email == loggeduser.email
+                    ? chat.users[1].ProfilePic
+                    : chat.users[0].ProfilePic
+                  : chat.ProfilePic
+              }`}
               width={80}
               height={80}
               alt="Picture of the author"
@@ -181,41 +199,42 @@ const Chat = ({ chat, messages, setselecteduser }) => {
               </span>
             </div>
           )}
-          {adduser || chat.groupchat && (
-            <div className="relative z-0 w-full mb-5 group">
-              <input
-                type="text"
-                name="Search"
-                value={search}
-                id="floating_Search"
-                className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                placeholder=""
-                required
-                onChange={async (e) => {
-                  setsearch(e.target.value);
-                  let token = localStorage.getItem("token");
-                  const res = await fetch(
-                    `http://127.0.0.1:5000/users?search=${search}`,
-                    {
-                      method: "GET",
-                      headers: {
-                        "Content-Type": "application/json",
-                        authorization: `Bearer ${token}`,
-                      },
-                    }
-                  );
-                  let users = await res.json();
-                  setUsers(users);
-                }}
-              />
-              <label
-                htmlFor="floating_Search"
-                className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transhtmlForm -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-              >
-                Search user
-              </label>
-            </div>
-          )}
+          {adduser ||
+            (chat.groupchat && (
+              <div className="relative z-0 w-full mb-5 group">
+                <input
+                  type="text"
+                  name="Search"
+                  value={search}
+                  id="floating_Search"
+                  className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                  placeholder=""
+                  required
+                  onChange={async (e) => {
+                    setsearch(e.target.value);
+                    let token = localStorage.getItem("token");
+                    const res = await fetch(
+                      `http://127.0.0.1:5000/users?search=${search}`,
+                      {
+                        method: "GET",
+                        headers: {
+                          "Content-Type": "application/json",
+                          authorization: `Bearer ${token}`,
+                        },
+                      }
+                    );
+                    let users = await res.json();
+                    setUsers(users);
+                  }}
+                />
+                <label
+                  htmlFor="floating_Search"
+                  className="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transhtmlForm -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+                >
+                  Search user
+                </label>
+              </div>
+            ))}
 
           <div className="w-full flex justify-center">
             {!chat.groupchat ? (

@@ -4,6 +4,10 @@ import ChatNavbar from "./ChatNavbar";
 import Image from "next/image";
 import Chat from "./Chat";
 import { useState, useEffect } from "react";
+import { io } from "socket.io-client";
+
+const ENDPOINT = "http://127.0.0.1:5000/";
+var socket, selectedChatCompare;
 
 const Chathome = () => {
   const [search, setsearch] = useState("");
@@ -12,6 +16,12 @@ const Chathome = () => {
   const [selecteduser, setselecteduser] = useState();
   const [allmessage, setallmessage] = useState([]);
   const loggeduser = JSON.parse(localStorage.getItem("userdata"));
+
+  useEffect(() => {
+    socket = io(ENDPOINT);
+    socket.emit("setup", loggeduser);
+    socket.on("connection");
+  }, []);
 
   const fetchchats = async () => {
     let token = localStorage.getItem("token");
@@ -37,12 +47,26 @@ const Chathome = () => {
     });
     let result = await res.json();
     setallmessage(result);
-    console.log(allmessage);
+
+    socket.emit("join chat", id);
   };
 
   useEffect(() => {
     fetchchats();
-  },[]);
+    selectedChatCompare = selecteduser;
+  }, [selecteduser]);
+
+  useEffect(() => {
+    socket.on("message recived", (newmessagerecieved) => {
+      if (
+        !selectedChatCompare ||
+        selectedChatCompare._id !== newmessagerecieved.chat._id
+      ) {
+      } else {
+        setallmessage([...allmessage, newmessagerecieved]);
+      }
+    });
+  });
 
   return (
     <div className="flex p-4 gap-5">
@@ -132,11 +156,13 @@ const Chathome = () => {
                 >
                   <div className="flex items-center">
                     <Image
-                      src={`/uploads/${!chat.groupchat
-                        ? chat.users[0].email == loggeduser.email
-                          ? chat.users[1].ProfilePic
-                          : chat.users[0].ProfilePic
-                        : chat.ProfilePic}`}
+                      src={`/uploads/${
+                        !chat.groupchat
+                          ? chat.users[0].email == loggeduser.email
+                            ? chat.users[1].ProfilePic
+                            : chat.users[0].ProfilePic
+                          : chat.ProfilePic
+                      }`}
                       width={40}
                       height={40}
                       alt="Picture of the author"
@@ -158,7 +184,15 @@ const Chathome = () => {
             })}
         </div>
       </div>
-      {selecteduser && <Chat chat={selecteduser} setselecteduser={setselecteduser} messages={allmessage} />}
+      {selecteduser && (
+        <Chat
+          chat={selecteduser}
+          setselecteduser={setselecteduser}
+          setallmessage={setallmessage}
+          socket={socket}
+          allmessage={allmessage}
+        />
+      )}
     </div>
   );
 };

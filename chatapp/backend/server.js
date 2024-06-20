@@ -78,7 +78,7 @@ app.post("/login", async (req, res) => {
     data: {
       userId: existingUser._id,
       email: existingUser.email,
-      ProfilePic:existingUser.ProfilePic,
+      ProfilePic: existingUser.ProfilePic,
       token: token,
     },
   });
@@ -154,22 +154,27 @@ app.get("/chats", verifyToken, (req, res) => {
 });
 
 // create groupchat
-app.post("/groupchat", verifyToken,upload.single("ProfilePic"), async (req, res) => {
-  let { users, chatname } = req.body;
-  users=JSON.parse(users);
-  users.push(req.user);
-  const groupchat = await Chat.create({
-    chatname: chatname,
-    groupchat: true,
-    ProfilePic: req.file.filename,
-    users: users,
-    groupadmin: req.user,
-  });
-  const fullgroupchat = await Chat.findOne({ _id: groupchat._id })
-    .populate("users", "-password")
-    .populate("groupadmin", "-password");
-  res.status(200).send(fullgroupchat);
-});
+app.post(
+  "/groupchat",
+  verifyToken,
+  upload.single("ProfilePic"),
+  async (req, res) => {
+    let { users, chatname } = req.body;
+    users = JSON.parse(users);
+    users.push(req.user);
+    const groupchat = await Chat.create({
+      chatname: chatname,
+      groupchat: true,
+      ProfilePic: req.file.filename,
+      users: users,
+      groupadmin: req.user,
+    });
+    const fullgroupchat = await Chat.findOne({ _id: groupchat._id })
+      .populate("users", "-password")
+      .populate("groupadmin", "-password");
+    res.status(200).send(fullgroupchat);
+  }
+);
 
 // add to a groupchat
 app.post("/adduser", async (req, res) => {
@@ -233,6 +238,35 @@ app.get("/:chatID", verifyToken, async (req, res) => {
   res.json(messages);
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
+});
+
+const io = require("socket.io")(server, {
+  pingTimeout: 60000,
+  cors: {
+    origin: "http://localhost:3000",
+  },
+});
+
+io.on("connection", (soket) => {
+  console.log(`connected to soket.io`);
+
+  soket.on("setup", (user) => {
+    soket.join(user.userId);
+    soket.emit("connected");
+  });
+  
+  soket.on("join chat", (room) => {
+    soket.join(room);
+    console.log("User Joined Room :" + room);
+  });
+
+  soket.on("new message", (newmessage) => {
+    var chat = newmessage.chat;
+    chat.users.forEach((user) => {
+      if (user._id == newmessage.sender._id) return;
+      soket.in(user._id).emit("message recived", newmessage);
+    });
+  });
 });
