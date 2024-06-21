@@ -39,12 +39,11 @@ const Chat = ({ chat, allmessage, setselecteduser, socket, setallmessage }) => {
 
   useEffect(() => {
     scrollend();
-  }, [allmessage])
-  
+  }, [allmessage]);
 
   return (
     <>
-      <div className="flex flex-col gap-2 p-3 bg-white/15 w-[70vw] rounded-3xl">
+      <div className="flex flex-col h-[95%] md:h-[100%] gap-2 p-3 bg-white/15 md:w-[70%] w-[91%] rounded-3xl absolute md:static">
         <div
           className="rounded-full p-3 flex gap-5 bg-black/25 hover:cursor-pointer"
           onClick={() => {
@@ -52,6 +51,16 @@ const Chat = ({ chat, allmessage, setselecteduser, socket, setallmessage }) => {
           }}
         >
           <div className="flex items-center">
+            {window.innerWidth <= 768 && (
+              <span
+                className="material-symbols-outlined rounded-full p-2"
+                onClick={() => {
+                  setselecteduser(null);
+                }}
+              >
+                arrow_back
+              </span>
+            )}
             <Image
               src={`/uploads/${
                 !chat.groupchat
@@ -82,7 +91,7 @@ const Chat = ({ chat, allmessage, setselecteduser, socket, setallmessage }) => {
 
         <div
           id="scrolldiv"
-          className="bg-black/25 h-[28rem] rounded-3xl p-3 overflow-auto scroll-smooth no-scrollbar"
+          className="bg-black/25 h-[90%] rounded-3xl p-3 overflow-auto scroll-smooth no-scrollbar"
         >
           {allmessage.map((message) => {
             return (
@@ -113,12 +122,9 @@ const Chat = ({ chat, allmessage, setselecteduser, socket, setallmessage }) => {
             );
           })}
         </div>
-        <div className="flex items-center bg-black/25 p-3 rounded-full gap-2">
-          <span class="material-symbols-outlined hover:bg-white/15 rounded-full p-2 hover:cursor-pointer">
-            mood
-          </span>
+        <div className="flex items-center bg-black/25 p-3 rounded-full gap-2 relative">
           <input
-            className=" text-lg w-[90%] bg-white/10 rounded-full p-1 px-2 outline-none"
+            className=" text-lg w-[95%] bg-white/10 rounded-full p-1 px-2 outline-none"
             placeholder="Type a Message"
             type="text"
             value={message}
@@ -132,11 +138,8 @@ const Chat = ({ chat, allmessage, setselecteduser, socket, setallmessage }) => {
               }
             }}
           />
-          <span class="material-symbols-outlined hover:bg-white/15 rounded-full p-2 hover:cursor-pointer">
-            add
-          </span>
           <span
-            class="material-symbols-outlined hover:bg-white/15 rounded-full p-2 hover:cursor-pointer"
+            className="material-symbols-outlined hover:bg-white/15 rounded-full p-2 hover:cursor-pointer"
             onClick={() => {
               sendmessage();
             }}
@@ -148,7 +151,7 @@ const Chat = ({ chat, allmessage, setselecteduser, socket, setallmessage }) => {
       {/* Details Div */}
       <div
         hidden={details}
-        className="w-[30%] absolute left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] bg-black p-3 rounded-xl"
+        className="md:w-[35%] w-[90%] absolute left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] bg-black p-3 rounded-xl"
       >
         <div className="flex flex-col w-full">
           <span

@@ -221,7 +221,7 @@ app.post("/sendmessage", verifyToken, async (req, res) => {
   message = await message.populate("chat");
   message = await User.populate(message, {
     path: "chat.users",
-    select: "username email",
+    select: "username email ProfilePic",
   });
 
   await Chat.findByIdAndUpdate(chatID, {
@@ -242,6 +242,7 @@ const server = app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
 
+// Socket io connectionn
 const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
@@ -256,7 +257,7 @@ io.on("connection", (soket) => {
     soket.join(user.userId);
     soket.emit("connected");
   });
-  
+
   soket.on("join chat", (room) => {
     soket.join(room);
     console.log("User Joined Room :" + room);

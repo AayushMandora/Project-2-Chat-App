@@ -36,7 +36,6 @@ const ChatNavbar = () => {
           >
             add_comment
           </span>
-          <span className="material-symbols-outlined">groups</span>
           <span
             className="material-symbols-outlined"
             onClick={() => {

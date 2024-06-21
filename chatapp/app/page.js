@@ -21,7 +21,7 @@ export default function Home() {
       <main>
         <div className="w-[90%] m-auto mt-[2%] h-[70vh] flex items-center justify-center">
           <div className="flex flex-col items-center gap-2">
-            <h1 className=" text-7xl font-bold bg-gradient-to-r from-blue-600 to-pink-400 inline-block text-transparent bg-clip-text">
+            <h1 className="text-center text-7xl font-bold bg-gradient-to-r from-blue-600 to-pink-400 inline-block text-transparent bg-clip-text">
               CHAT FUN
             </h1>
             <p className=" font-medium text-lg">

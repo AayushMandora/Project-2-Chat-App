@@ -67,13 +67,12 @@ const Chathome = () => {
       }
     });
   });
-
   return (
-    <div className="flex p-4 gap-5">
-      <div className="w-1/3 flex flex-col gap-4">
+    <div className="flex h-[100vh] p-4 gap-5">
+      <div className={`md:w-[30%] flex flex-col gap-4 w-full transition-all ${(selecteduser && window.innerWidth<=768) ?`hidden`:''}`}>
         <ChatNavbar />
-        <div className="rounded-3xl h-[83vh] p-5 bg-white/15">
-          <div className="relative z-0 w-full mb-5 group">
+        <div className="rounded-3xl h-[100%] p-5 bg-white/15">
+          <div className="relative z-0 w-full mb-5 group overflow-auto scroll-smooth no-scrollbar">
             <input
               type="text"
               name="Search"
