@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
-const Chat = ({ chat, allmessage, setselecteduser, socket, setallmessage }) => {
+const Chat = ({ chat, allmessage, setselecteduser, socket, setallmessage}) => {
   const [message, setmessage] = useState("");
   const loggeduser = JSON.parse(localStorage.getItem("userdata"));
   const [details, setdetails] = useState(true);
@@ -151,7 +151,7 @@ const Chat = ({ chat, allmessage, setselecteduser, socket, setallmessage }) => {
       {/* Details Div */}
       <div
         hidden={details}
-        className="md:w-[35%] w-[90%] absolute left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] bg-black p-3 rounded-xl"
+        className="md:w-[35%] w-[90%] z-10 absolute left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] bg-black p-3 rounded-xl"
       >
         <div className="flex flex-col w-full">
           <span

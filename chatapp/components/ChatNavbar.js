@@ -2,8 +2,9 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
-const ChatNavbar = () => {
+const ChatNavbar = ({fetchchats}) => {
   const [add, setadd] = useState(true);
   const [search, setsearch] = useState("");
   const [file, setFile] = useState();
@@ -51,7 +52,7 @@ const ChatNavbar = () => {
       {/* Create Group Div */}
       <div
         hidden={add}
-        className="w-[35%] absolute left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]"
+        className="md:w-[35%] w-[90%] z-10 absolute left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]"
       >
         <div className="bg-black p-5 rounded-2xl flex flex-col gap-5 items-center">
           <div className="flex w-full justify-between">
@@ -99,7 +100,7 @@ const ChatNavbar = () => {
               name="ProfilePic"
               onChange={handleFileChange}
             />
-            <div className="relative z-0 w-full mb-5 group">
+            <div className="relative z-0 w-full mb-5 group mt-4">
               <input
                 type="text"
                 name="add_user"
@@ -184,10 +185,10 @@ const ChatNavbar = () => {
             type="submit"
             className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             onClick={async () => {
-              let users=JSON.stringify(Object.values(selectedusers));
+              let users = JSON.stringify(Object.values(selectedusers));
               const formData = new FormData();
               formData.append("chatname", groupname);
-              formData.append("users",users);
+              formData.append("users", users);
               formData.append("ProfilePic", file);
               let token = localStorage.getItem("token");
               const res = await fetch(`http://127.0.0.1:5000/groupchat`, {
@@ -197,6 +198,20 @@ const ChatNavbar = () => {
                 },
                 body: formData,
               });
+              if (res.ok) {
+                toast.success("Group Created Successfully!", {
+                  position: "top-center",
+                  autoClose: 5000,
+                  hideProgressBar: false,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  progress: undefined,
+                  theme: "dark",
+                });
+                fetchchats();
+                setadd(true);
+              }
             }}
           >
             Create Chat
