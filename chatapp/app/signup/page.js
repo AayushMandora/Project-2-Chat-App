@@ -30,9 +30,6 @@ const page = () => {
       body: formData,
     });
     if (response.ok) {
-      const data1 = await response.json();
-      localStorage.setItem("userdata", JSON.stringify(data1.data));
-      localStorage.setItem("token", data1.token);
       toast.success("User Registered Successfully!", {
         position: "top-center",
         autoClose: 5000,
@@ -57,8 +54,8 @@ const page = () => {
           </h2>
         </div>
 
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <from className="space-y-6" enctype="multipart/form-data">
+        <div className="mt-5 sm:mx-auto sm:w-full sm:max-w-sm">
+          <form className="space-y-6" enctype="multipart/form-data" action={onSubmit}>
             <div className="relative z-0 w-full mb-5 group">
               <input
                 type="email"
@@ -67,6 +64,7 @@ const page = () => {
                 id="floating_email"
                 className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
                 placeholder=" "
+                required
                 onChange={handlechange}
               />
               <label
@@ -142,21 +140,19 @@ const page = () => {
               id="file_input"
               type="file"
               name="ProfilePic"
+              required
               onChange={handleFileChange}
             />
 
             <button
               type="submit"
               className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              onClick={() => {
-                onSubmit();
-              }}
             >
               Create an account
             </button>
-          </from>
+          </form>
 
-          <p className="mt-10 text-center text-sm text-gray-500">
+          <p className="mt-5 text-center text-sm text-gray-500">
             Already have an account?
             <Link
               href="/login"

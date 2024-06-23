@@ -76,8 +76,8 @@ const Chathome = () => {
       >
         <ChatNavbar 
           fetchchats={fetchchats}/>
-        <div className="rounded-3xl h-[100%] p-5 bg-white/15">
-          <div className="relative z-0 w-full mb-5 group overflow-auto scroll-smooth no-scrollbar">
+        <div className="rounded-3xl h-[100%] p-5 bg-white/15 overflow-auto scroll-smooth no-scrollbar">
+          <div className="relative z-0 w-full mb-5 group">
             <input
               type="text"
               name="Search"

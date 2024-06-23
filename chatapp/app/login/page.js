@@ -24,7 +24,6 @@ const page = () => {
       },
       body: JSON.stringify(data),
     });
-    console.log(response);
     if (response.ok) {
       toast.success("Login Successfully!", {
         position: "top-center",
@@ -41,6 +40,18 @@ const page = () => {
       localStorage.setItem("userdata", JSON.stringify(data1.data));
       router.push("/chats");
     }
+    else{
+      toast.error("Incorrect Username or Password", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    }
   }
 
   return (
@@ -54,7 +65,7 @@ const page = () => {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <from className="space-y-6" action="#" method="POST">
+          <form className="space-y-6" action={onSubmit}>
             <div className="relative z-0 w-full mb-5 group">
               <input
                 type="email"
@@ -97,14 +108,11 @@ const page = () => {
               <button
                 type="submit"
                 className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                onClick={() => {
-                  onSubmit();
-                }}
               >
                 Login
               </button>
             </div>
-          </from>
+          </form>
 
           <p className="mt-10 text-center text-sm text-gray-500">
             Don't have an account yet?

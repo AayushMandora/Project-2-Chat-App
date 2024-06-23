@@ -10,8 +10,7 @@ const Chat = require("./models/chatmodel");
 const verifyToken = require("./models/verify");
 const Message = require("./models/Messagemodel");
 const upload = require("./models/storeprofilepic");
-
-require("dotenv").config();
+require("dotenv").config({path:'../.env'});
 
 connectDB();
 
@@ -34,7 +33,7 @@ app.post("/register", upload.single("ProfilePic"), async (req, res) => {
     {
       userId: user._id,
     },
-    "Aayush",
+    process.env.JWT_SECRET,
     { expiresIn: "30d" }
   );
   if (user) {
@@ -48,7 +47,7 @@ app.post("/register", upload.single("ProfilePic"), async (req, res) => {
   }
 });
 
-app.post("/login", async (req, res) => {
+app.post("/login", async (req, res, next) => {
   const { email, password } = req.body;
   let existingUser;
 
@@ -59,17 +58,17 @@ app.post("/login", async (req, res) => {
     return next(error);
   }
   let token;
+  console.log(process.env)
   try {
     //Creating jwt token
     token = jwt.sign(
       {
         userId: existingUser._id,
       },
-      "Aayush",
+      process.env.JWT_SECRET,
       { expiresIn: "30d" }
     );
   } catch (err) {
-    console.log(err);
     const error = new Error("Error! Something went wrong.");
     return next(error);
   }
@@ -217,7 +216,7 @@ app.post("/sendmessage", verifyToken, async (req, res) => {
   };
 
   let message = await Message.create(newmessage);
-  message = await message.populate("sender", "username");
+  message = await message.populate("sender", "username ProfilePic");
   message = await message.populate("chat");
   message = await User.populate(message, {
     path: "chat.users",
@@ -251,8 +250,6 @@ const io = require("socket.io")(server, {
 });
 
 io.on("connection", (soket) => {
-  console.log(`connected to soket.io`);
-
   soket.on("setup", (user) => {
     soket.join(user.userId);
     soket.emit("connected");
@@ -260,7 +257,6 @@ io.on("connection", (soket) => {
 
   soket.on("join chat", (room) => {
     soket.join(room);
-    console.log("User Joined Room :" + room);
   });
 
   soket.on("new message", (newmessage) => {
