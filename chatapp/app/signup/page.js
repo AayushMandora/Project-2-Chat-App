@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -10,6 +10,11 @@ const page = () => {
   const [form, setform] = useState([]);
   const [file, setFile] = useState();
   const router = useRouter();
+
+  useEffect(() => {
+    document.title="SIGN UP - CHAT FUN"
+  }, [])
+  
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);

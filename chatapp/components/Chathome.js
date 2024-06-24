@@ -21,6 +21,7 @@ const Chathome = () => {
     socket = io(ENDPOINT);
     socket.emit("setup", loggeduser);
     socket.on("connection");
+    document.title=`${loggeduser.username} - CHAT FUN`
   }, []);
 
   const fetchchats = async () => {

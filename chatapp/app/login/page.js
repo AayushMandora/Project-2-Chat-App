@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -9,6 +9,10 @@ import { useRouter } from "next/navigation";
 const page = () => {
   const [form, setform] = useState([]);
   const router = useRouter();
+
+  useEffect(() => {
+    document.title = "LOGIN - CHAT FUN";
+  }, []);
 
   const handlechange = (e) => {
     setform({ ...form, [e.target.name]: e.target.value });
@@ -39,8 +43,7 @@ const page = () => {
       localStorage.setItem("token", data1.data.token);
       localStorage.setItem("userdata", JSON.stringify(data1.data));
       router.push("/chats");
-    }
-    else{
+    } else {
       toast.error("Incorrect Username or Password", {
         position: "top-center",
         autoClose: 5000,

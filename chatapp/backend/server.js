@@ -58,7 +58,6 @@ app.post("/login", async (req, res, next) => {
     return next(error);
   }
   let token;
-  console.log(process.env)
   try {
     //Creating jwt token
     token = jwt.sign(
@@ -78,6 +77,7 @@ app.post("/login", async (req, res, next) => {
       userId: existingUser._id,
       email: existingUser.email,
       ProfilePic: existingUser.ProfilePic,
+      username:existingUser.username,
       token: token,
     },
   });
