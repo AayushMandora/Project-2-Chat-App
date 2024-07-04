@@ -1,0 +1,6 @@
+![Screenshot 2024-07-04 184059](https://github.com/AayushMandora/Project-2-Chat-App/assets/140262808/6a2f9c1f-f1b9-4000-af8b-08d82e685ad5)
+![Screenshot 2024-07-04 184117](https://github.com/AayushMandora/Project-2-Chat-App/assets/140262808/2e106535-5ac3-4662-914b-3a8e85a64fba)
+![Screenshot 2024-07-04 184123](https://github.com/AayushMandora/Project-2-Chat-App/assets/140262808/8c4c905c-e978-4b24-90fe-1de84a5c6ff3)
+![Screenshot 2024-07-04 184149](https://github.com/AayushMandora/Project-2-Chat-App/assets/140262808/bd9c14ce-7d01-44df-8709-5d4255e2e93d)
+![Screenshot 2024-07-04 184314](https://github.com/AayushMandora/Project-2-Chat-App/assets/140262808/683c5755-f0c7-4ff8-8876-088c6f7c7411)
+![Screenshot 2024-07-04 184202](https://github.com/AayushMandora/Project-2-Chat-App/assets/140262808/4a483fc9-4d2b-48a7-b9b6-04741ea89b71)
